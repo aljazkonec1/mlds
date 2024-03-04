@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import random
 
-from hw_tree import Tree, RandomForest, hw_tree_full, hw_randomforests
+from hw_tree_template import Tree, RandomForest, hw_tree_full, hw_randomforests
 
 
 def random_feature(X, rand):
