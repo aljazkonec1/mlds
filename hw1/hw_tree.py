@@ -3,6 +3,7 @@ from collections import Counter
 import random
 import csv
 import time
+import matplotlib.pyplot as plt
 
 def all_columns(X, rand):
     return range(X.shape[1])
@@ -29,6 +30,9 @@ class Tree:
         if (len(y) < self.min_samples) or self.gini_impurity(y) == 0: #create a leaf
             return TreeNode(X, y, columns=cols)
 
+        # print("to je X: ", X)
+        # print("to je y: ", y)
+        # print("unique X: ", np.unique(X).shape)
 
         dL, yL, dR, yR, criteria, idx = self.split(X, y, cols)
         node = TreeNode(X, y,columns=cols, criteria=criteria, idx=idx)
@@ -152,8 +156,16 @@ class RandomForest:
 
             X_b = X[bootstrap_indices]
             y_b = y[bootstrap_indices]
+            # print("unique bootstrap indices: ", np.unique(bootstrap_indices))
+            # print("len unique bootstrap indices: ", len(np.unique(bootstrap_indices)))
 
-            trees.append(self.t.build(X_b, y_b))
+            # print("X_b: ", X_b)
+            # print("y_b: ", y_b)
+            # print("unique X_b: ", np.unique(X_b).shape)
+            p = self.t.build(X_b, y_b)
+            # p.print_tree(X_b)
+
+            trees.append(p)
             oobs.append(bootstrap_indices)
 
         return RFModel(rand=self.rand, trees=trees, oobs=oobs, X=X, y=y )
@@ -176,25 +188,29 @@ class RFModel:
 
         y = np.array(y).T
         # print("y v rf: ", y)
+        # print(y.shape)
         y = np.array([Counter(row).most_common(1)[0][0] for row in y])
-
+        # print("y v rf: ", y)
+        
         return y
 
-    def importance(self, X, y):
-        imps = np.empty((len(self.trees), X.shape[1]))
+    def importance(self):
+
+        imps = np.empty((len(self.trees), self.X.shape[1]))
         imps[:, :] = np.nan
 
         for i, tree in enumerate(self.trees):
             oob = np.array(range(len(self.y)))[np.isin(range(len(self.y)), self.oobs[i], invert=True)]
+            
+            y_pred = tree.predict(self.X[oob])
 
-            y_pred = tree.predict(X[oob])
-            e_orig = self.calculate_accuracy(y[oob], y_pred) # original error
+            e_orig = self.calculate_accuracy(self.y[oob], y_pred) # original error
 
-            for f in tree.columns:
-                X_perm = X.copy()
+            for f in range(self.X.shape[1]):
+                X_perm = self.X.copy()
                 self.rand.shuffle(X_perm[:, f])
                 y_pred_perm = tree.predict(X_perm[oob])
-                e_perm = self.calculate_accuracy(y[oob], y_pred_perm)
+                e_perm = self.calculate_accuracy(self.y[oob], y_pred_perm)
                 imps[i, f] = e_perm - e_orig
 
         return np.nanmean(imps, axis=0)
@@ -213,9 +229,9 @@ def hw_tree_full(learn, test):
 
     # p = t.build(test[0], test[1])
     test_pred = p.predict(test[0])
-    print(test[0].shape)
+    # print(test[0].shape)
     test_miss, test_un = calc_ms_un(test[1], test_pred)
-    p.print_tree(test[0])
+    # p.print_tree(test[0])
 
     return (learn_miss, learn_un), (test_miss, test_un)
 
@@ -225,13 +241,22 @@ def calc_ms_un(y, y_pred):
     return ms, un
 
 
-def hw_randomforests(learn, test):
-    rf = RandomForest(rand=random.Random(), n=100)
+def hw_randomforests(learn, test, n = 100, rand=random.Random()):
+    rf = RandomForest(rand=rand, n=n)
+    # print(learn[0].shape)
+
     p = rf.build(learn[0], learn[1])
+
     learn_pred = p.predict(learn[0])
+
+    # print(learn_pred)
+    # print(learn[1])
+
     learn_miss, learn_un = calc_ms_un(learn[1], learn_pred)
 
     # p = rf.build(test[0], test[1])
+    # print(test[0].shape)
+    # print(test[0])
     test_pred = p.predict(test[0])
     
     test_miss, test_un = calc_ms_un(test[1], test_pred)
@@ -261,8 +286,43 @@ if __name__ == "__main__":
     x = 0
     learn, test, legend = tki()
 
+    print(learn[0].shape)
+    start = time.time()
     print("full", hw_tree_full(learn, test))
-    # print("random forests", hw_randomforests(learn, test))
+    print(f"Tree built in: {time.time() - start:.3f}")
+    
+    print("random forests", hw_randomforests(learn, test, rand= random.Random(0)))
+    
+    # ns = [10, 20, 50, 100, 200, 300, 400, 500]
+
+    # missclassification = []
+    # std_error = []
+    # for n in ns:
+    #     ms = hw_randomforests(learn, test, n=n,rand=random.Random(0))[1]
+    #     missclassification.append(ms[0])
+    #     std_error.append(ms[1])
+    
+    # print(missclassification)
+    # ns = [str(n) for n in ns ]
+    # plt.bar(ns, missclassification)
+    # plt.errorbar(ns, missclassification, yerr=std_error, color='orange', ls='none')
+
+    # plt.plot(ns, missclassification)
+
+    # plt.show()
+
+
+    # rf = RandomForest(rand=random.Random(0), n=10)
+    # p = rf.build(learn[0], learn[1])
+    # importance = p.importance(learn[0], learn[1])
+
+    # print(importance)
+    
+    # y_pred = p.predict(learn[0])
+    # print(y_pred)
+    # print(learn[1])
+    # missclsification= p.calculate_accuracy(learn[1], y_pred)
+    # print(missclsification)
 
     # start = time.time()
     # rf = RandomForest(rand=random.Random(0), n=100)
@@ -270,7 +330,9 @@ if __name__ == "__main__":
     # print(f"RF model built in: {time.time() - start:.3f}")
 
     # importance = p.importance(learn[0], learn[1])
-    # top_5_idx = np.argsort(importance)[::-1][:10]
+    # # top_5_idx = np.argsort(importance)[::-1][:10]
+    # print(importance)
+    # print(importance.shape)
     # print(importance[top_5_idx])
     # print(legend[top_5_idx])
     # print(top_5_idx)
