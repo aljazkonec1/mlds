@@ -3,8 +3,8 @@ import unittest
 
 import numpy as np
 
-from solution import MultinomialLogReg, OrdinalLogReg
-    # multinomial_bad_ordinal_good, MBOG_TRAIN
+from solution import MultinomialLogReg, OrdinalLogReg, \
+    multinomial_bad_ordinal_good, MBOG_TRAIN
 
 
 class HW2Tests(unittest.TestCase):
@@ -37,16 +37,16 @@ class HW2Tests(unittest.TestCase):
         self.assertTrue((prob >= 0).all())
         np.testing.assert_almost_equal(prob.sum(axis=1), 1)
 
-    # def test_multinomial_bad_ordinal_good(self):
-    #     rand = random.Random(0)
-    #     X, y = multinomial_bad_ordinal_good(100, rand)
-    #     self.assertEqual(len(X), 100)
-    #     self.assertEqual(y.shape, (100,))
-    #     rand = random.Random(1)
-    #     X1, y1 = multinomial_bad_ordinal_good(100, rand)
-    #     self.assertTrue((X != X1).any())
-    #     trainX, trainY = multinomial_bad_ordinal_good(MBOG_TRAIN, random.Random(42))
-    #     self.assertEqual(len(trainX), MBOG_TRAIN)
+    def test_multinomial_bad_ordinal_good(self):
+        rand = random.Random(0)
+        X, y = multinomial_bad_ordinal_good(100, rand)
+        self.assertEqual(len(X), 100)
+        self.assertEqual(y.shape, (100,))
+        rand = random.Random(1)
+        X1, y1 = multinomial_bad_ordinal_good(100, rand)
+        self.assertTrue((X != X1).any())
+        trainX, trainY = multinomial_bad_ordinal_good(MBOG_TRAIN, random.Random(42))
+        self.assertEqual(len(trainX), MBOG_TRAIN)
 
 
 if __name__ == "__main__":

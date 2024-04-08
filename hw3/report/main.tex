@@ -66,7 +66,7 @@ In the final section we showcase an example of a data generating process that is
 The multinomial logistic regression model differs from the binary logistic regression model in that it has $K$ sets of coefficients, one for each class.
 To calculate the probability of a sample belonging to a certain class, we use the softmax function:
 \begin{equation}
-    P(y = k | x) = \frac{e^{\beta_k^T x}}{1 + \sum_{j=1}^{K} e^{\beta_j^T x}}
+    P(y = k | x) = \frac{e^{\beta_k^T x}}{\sum_{j=1}^{K} e^{\beta_j^T x}}
 \end{equation}
 where $\beta_k$ is the set of coefficients for class $k$.
 The loss functions is then defined as the negative log-likelihood over all samples:
@@ -113,12 +113,59 @@ The results are shown in Figure \ref{fig:coef}.
     \caption{Coefficients of the multinomial logistic regression model.}
     \label{fig:coef}
 \end{figure}
-A positive coefficient means that the feature is positively correlated with the class
+A positive coefficient means that the feature is positively correlated with the target class.
+It can be seen that Transition, Angle and Player Type have coefficients that are close to zero.
+This makes intuitive sense as scoring a basket is not dependent on wether the shot was taken in transition.
+The angle at wich the shot was taken is also not important as only very rare shots are taken at extreme angles.
+All players practice shooting and therefoe the player type does not have a significant impact on the shot type.
+
+With increasing distance from the basket, Tip-ins and Dunks become less likely or even impossible.
+This is reflected in the very low negative coefficients for Distance in those classes.
+The classic Above Head shot is more likely to be taken from a distance and as such has a high positive coefficient for Distance.
+A similiarly high Distance coefficient can be seen for Other shots.
+
+Another very important feature is movement and no movement.
+An Above Head shot is very difficult to make while moving and as such has a very high negative coefficient for Movement.
+The opposite is true for Layups, which are often taken while moving.
+This is reflected in a positive coefficient for Drive Movement and a negative coefficient for No Movement.
+The Hook Shot is also more likely to hit while stationary, which is reflected in a high coefficient for No Movement.
+
+Dunks and Tip-ins are easier to make if the player is taller and can jump higher.
+Therefore, the these classes are negativley correlated with the Under 14 Competitions as they are played by young players who are not fully grown yet.
+Looking further into the Dunk class we can see that only the NBA competition has a positive coefficient asociated with it while the other competitions have negative coefficients.
+From this we can gather that Dunking is more common in the NBA, which could be due to the fact that the NBA boasts the best players in the world and they are more likely to be able to succesfully perform a dunk.
+
+The TwoLegged feature is also important for many classes.
+Performing a Tip-in, Dunk or Layup is easier if the player can jump off of two legs and therefore the TwoLegged feature has a positive coefficient for those classes.
+The Other class has a mix of shots where the player might jump off of one or two legs and as such has a low coefficient for TwoLegged.
+
+
+\section{Outperformance of ordinal regression}
+To showcase the outperformance of ordinal regression over multinomial regression we created a new data generating process such that:
+The target variables are integers between 0 and 3, the feature matrix $X$ contains 12 features, each drawn from a standard normal distribution.
+Generating a training set of 50 samples and a test set of 1000 samples we trained both a multinomial and an ordinal logistic regression model.
+The results are shown in Table \ref{tab:results}.
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \hline
+        Model & Accuracy & Log-loss\\
+        \hline
+        Multinomial & 0.323 & 1.708\\
+        Ordinal & 0.339 & 1.433\\
+        \hline
+    \end{tabular}
+    \caption{Results of the data generating process.}
+    \label{tab:results}
+\end{table}
+We can see that Ordinal regression has a lower Log-loss value, this is due to the fact that extreme values in the features have higher chances to be classified either into 0 or 3 as these are the most extreme classes.
+While the multinomial regression model there is no such clear separation and such values can be classified into any of the 4 classes.
 
 
 \section{Conclusion}
-
-A sentence or two to conclude the report. Write when the method works well and what its limitations.
+Data in the real world is rearly binary and as such multinomial regression models are needed to classify data.
+Likewise, ordinal regression models can be very useful for situations where modeling human preferences is needed.
+This report showcased that the implementation of both models is relatively simple and that the coefficients of the models can be interpreted to gain insight into the data.
 
 \bibliographystyle{IEEEtran}
 \bibliography{main}
