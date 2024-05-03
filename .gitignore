@@ -1,7 +1,9 @@
 hw4/final/
-
+hw4/final.txt
 *.csv
 *tst*
+*.zip
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
