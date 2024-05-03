@@ -1,14 +1,14 @@
 # Fdb version 3
-["bibtex main"] 1714075216 "main.aux" "main.bbl" "main" 1714075216
+["bibtex main"] 1714222994 "main.aux" "main.bbl" "main" 1714222994
   "/usr/share/texlive/texmf-dist/bibtex/bst/ieeetran/IEEEtran.bst" 1440712899 57748 7c8250ecf02814ce6ddc0cdbb63df1dd ""
   "bibliography.bib" 0 -1 0 ""
-  "main.aux" 1714075216 2669 3c3c1460ea698c8e5864bfa22db30785 "pdflatex"
+  "main.aux" 1714222988 2939 7dc73ab45b0cf12b05ed224245f2d607 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
-["pdflatex"] 1714075216 "/home/aljaz/FAKS/mlds/hw4/report/main.tex" "main.pdf" "main" 1714075216
+["pdflatex"] 1714222988 "/home/aljaz/FAKS/mlds/hw4/report/main.tex" "main.pdf" "main" 1714222994
   "/etc/texmf/web2c/texmf.cnf" 1701018509 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/aljaz/FAKS/mlds/hw4/report/main.tex" 1714075216 7367 a4ca6eeea902eb3f13290f8dbba7e8c9 ""
+  "/home/aljaz/FAKS/mlds/hw4/report/main.tex" 1714222994 8931 7c40f0d454377a6e9bc85026ca1bbad9 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/times/ptmb7t.tfm" 1136768653 2172 fd0c924230362ff848a33632ed45dc23 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/times/ptmbi7t.tfm" 1136768653 2228 e564491c42a4540b5ebb710a75ff306c ""
@@ -162,6 +162,7 @@
   "/usr/share/texmf/fonts/type1/public/lm/lmr9.pfb" 1254938640 121065 50bbfa703ce7e11638752ef5a6d120c7 ""
   "/usr/share/texmf/fonts/type1/public/lm/lmri9.pfb" 1254938640 109598 cb570392cb143ca78182169795feed7a ""
   "/usr/share/texmf/fonts/type1/public/lm/lmsy6.pfb" 1254938640 28109 6d61305ed3d0eb794ebe36f15cf44aa0 ""
+  "/usr/share/texmf/fonts/type1/public/lm/lmsy8.pfb" 1254938640 27802 5c876bb2c4040caaf035d60bd74a86bd ""
   "/usr/share/texmf/fonts/type1/public/lm/lmsy9.pfb" 1254938640 27835 16c2fa83351d4ef8cf5aebfab8a44bc1 ""
   "/usr/share/texmf/tex/latex/lm/lmodern.sty" 1256929440 1606 c17281c7cff2bbd7ff0173e1433487ec ""
   "/usr/share/texmf/tex/latex/lm/omllmm.fd" 1256929440 888 44447a3a3af84a22454ef89500942d93 ""
@@ -175,10 +176,10 @@
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1710831312 2798689 45dea7c6e89ba7e05d6f11efe5b4a017 ""
   "figures//grad_verification.pdf" 1714051184 14067 0b015fcf68f4cc5824bbe476c00b9b07 ""
   "figures//roc_curve.pdf" 1714053557 15923 628e3824d3f6629b90d5d26c981943b7 ""
-  "main.aux" 1714075216 2669 3c3c1460ea698c8e5864bfa22db30785 "pdflatex"
+  "main.aux" 1714222988 2939 7dc73ab45b0cf12b05ed224245f2d607 "pdflatex"
   "main.bbl" 0 -1 0 "bibtex main"
-  "main.out" 1714075216 1231 cdbb5135f3b3d641970c7c25738d9b71 "pdflatex"
-  "main.tex" 1714075216 7367 a4ca6eeea902eb3f13290f8dbba7e8c9 ""
+  "main.out" 1714222988 1365 d07412958af598ba6772b9fe9f4a770b "pdflatex"
+  "main.tex" 1714222994 8931 7c40f0d454377a6e9bc85026ca1bbad9 ""
   (generated)
   "main.aux"
   "main.log"

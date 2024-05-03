@@ -10,6 +10,10 @@ import time
 import pandas as pd
 import sys
 
+from sklearn.preprocessing import OneHotEncoder, normalize
+from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split
+
 
 class ANN:
     def __init__(self, units, lambda_):
@@ -26,30 +30,19 @@ class ANN:
 
     def initialize_weight(self, s= None):
         np.random.seed(s)
+
         self.weight = [np.random.randn( x, y) for x, y in zip(self.units[:-1], self.units[1:])]
-        # self.weight = [np.random.randn( y, x) for x, y in zip(self.units[:-1], self.units[1:])]
         self.biases = [np.random.randn(1, y) for y in self.units[1:]]
-        # self.biases = [np.random.randn(y, 1) for y in self.units[1:]]
-        self.weight_shapes = [(y, x) for x, y in zip(self.units[:-1], self.units[1:])]
-        self.biases_shapes = [(y, 1) for y in self.units[1:]]
+        self.weight_shapes = [(x, y) for x, y in zip(self.units[:-1], self.units[1:])]
+        self.biases_shapes = [( 1, y) for y in self.units[1:]]
+
 
     def sigmoid(self, x):
-        try:
-            return expit(x)
-        except:
-            print(x)
-            print("zs ", self.zs)
-            print("activations ", self.activations)
-            print("weights ", self.weight)
-            sys.exit(1)
+        return 1 / (1 + np.exp(-x))
 
-
-        # return 1 / (1 + np.exp(-x))
-        # return expit(x)
         
     def sigmoid_derivative(self, x):
         return self.sigmoid(x) * (1 - self.sigmoid(x))
-        # return expit(x) * (1 - expit(x))
     
     def cost_derivative(self, output_activations, y):
         return output_activations - y
@@ -58,7 +51,7 @@ class ANN:
         self.activations.append(x)
 
         for i in range(len(self.weight)-1):
-            zi = np.dot(self.weight[i], self.activations[i]) + self.biases[i].flatten()
+            zi = np.dot(self.activations[i], self.weight[i]) + self.biases[i] 
             self.zs.append(zi)
             self.activations.append(self.activation_function(zi))
     
@@ -77,42 +70,26 @@ class ANN:
     def log_loss2(self, y, preds): 
         return np.log(np.sum(preds * y))
 
-    def backprop(self, x, y):
-        self.activations = []   
-        self.zs = []
-        self.feedforward(x)
-        nabla_b = [np.zeros(b.shape) for b in self.biases]
-        nabla_w = [np.zeros(w.shape) for w in self.weight]
-        delta = self.cost_derivative(self.activations[-1], y) 
-        # * self.sigmoid_derivative(self.zs[-1]) #BP1
-
-
-        nabla_b[-1] = delta #BP3
-        
-        nabla_w[-1] = np.dot(np.array([delta]).T, np.array([self.activations[-2]])) #BP4
-
-        for l in range(2, len(self.units)):
-            delta = np.dot(self.weight[-l+1].T, delta) * self.sigmoid_derivative(self.zs[-l]) #BP2
-            nabla_b[-l] = delta
-            nabla_w[-l] = np.dot(np.array([delta]).T, np.array([self.activations[-l-1]]))
-
-        return nabla_b, nabla_w
-
-
-    def gradient(self, params, X, y):
+    def gradient(self, params, X, y): # backpropagation
         self.set_params(params)
 
         nabla_b = [np.zeros(b).T for b in self.biases_shapes]
         nabla_w = [np.zeros(w) for w in self.weight_shapes]
 
-        for x, y in zip(X, y): # for each element in the batch
-            delta_nabla_b, delta_nabla_w = self.backprop(x, y)
-            nabla_b = [nb + dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
-            nabla_w = [nw + dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
+        delta = self.cost_derivative(self.activations[-1], y) 
+        # * self.sigmoid_derivative(self.zs[-1]) #BP1
 
-        nabla_b = [nb / X.shape[0] for nb in nabla_b]
-        nabla_w = [nw / X.shape[0] for nw in nabla_w]
-        nabla_w = [nw + 2 * self.lambda_ * w for nw, w in zip(nabla_w, self.weight)]
+        nabla_b[-1] = np.mean(delta, axis=0, keepdims=True) #BP3
+        nabla_w[-1] = np.dot(delta.T, self.activations[-2]).T #BP4
+
+        for l in range(2, len(self.units)):
+            delta = np.dot( delta, self.weight[-l+1].T) * self.sigmoid_derivative(self.zs[-l]) #BP2
+            nabla_b[-l] = np.mean(delta, axis=0, keepdims=True)
+            nabla_w[-l] =  np.dot(delta.T, self.activations[-l-1]).T
+        
+
+        nabla_w = [nw/X.shape[0] + 2 * self.lambda_ * w for nw, w in zip(nabla_w, self.weight)]
+
         return np.concatenate([nw.flatten() for nw in nabla_w] + [nb.flatten() for nb in nabla_b])
 
     def compute_numerical_gradient(self, x, y, epsilon=1e-6):
@@ -154,34 +131,10 @@ class ANN:
             # if X.shape[0] <= 32: # no need for mini batches
             self.weight = []
             self.biases = []
-            # result = minimize(self.loss, initial_parameters, args=(X, y), method='L-BFGS-B', options={'disp': False}, jac=self.gradient)
-            # initial_parameters = result.x
             result = fmin_l_bfgs_b(self.loss, initial_parameters, args=(X, y), approx_grad=False)
             initial_parameters = result[0]
 
-
-            # else: # split into miniatches
-            #     perm = np.random.permutation(X.shape[0])
-            #     X_shuf = X[perm]
-            #     y_shuf = y[perm]
-
-            #     batch_size = 32
-            #     n_batches = math.ceil(X.shape[0] / batch_size)
-            #     batch_size = int(X.shape[0] / n_batches)
-            #     # print("n_batches ", n_batches)
-            #     for i in range(n_batches):
-            #         X_batch = X_shuf[i*batch_size:(i+1)*batch_size]
-            #         y_batch = y_shuf[i*batch_size:(i+1)*batch_size]
-            #         self.weight = []
-            #         self.biases = []
-            #         # result = minimize(self.loss, initial_parameters, args=(X_batch, y_batch), method='L-BFGS-B', options={'disp': False}, jac=self.gradient)
-            #         # initial_parameters = result.x
-            #         result = fmin_l_bfgs_b(self.loss, initial_parameters, fprime=self.gradient, args=(X_batch, y_batch), maxiter=10000, disp=False)
-            #         initial_parameters = result[0]
-
-        # print(result)
         self.set_params(result[0])
-        # self.set_params(result.x)
 
 
     def flatten_params(self):
@@ -207,7 +160,9 @@ class ANN:
     def weights(self):
         weights = []
         for i in range (len(self.weight)):
-            weights.append(np.vstack((self.biases[i].T, self.weight[i].T)))
+            # print(self.biases[i].T)
+            # print(self.weight[i].T)
+            weights.append(np.vstack((self.biases[i], self.weight[i])))
 
         return weights
 
@@ -217,28 +172,25 @@ class ANNClassification(ANN):
         self.encoder = None
 
     def feedforward(self, x):
+        self.activations = []
+        self.zs = []
         self.hidden_layer_feedforward(x)
-        zi = np.dot(self.weight[-1], self.activations[-1]) + self.biases[-1].flatten()
+        zi = np.dot(self.activations[-1], self.weight[-1]) + self.biases[-1]
+
         self.zs.append(zi)
-        self.activations.append(softmax(zi))
+        self.activations.append(softmax(zi, axis= 1))
         
     def loss(self, params, X, Y): # for a batch
         self.weight = []
         self.biases = []
-
         self.set_params(params)
 
-        loss = 0
-        for x, y in zip(X, Y): # for each element in the batch
-            self.activations = []
-            self.zs = []
-            self.feedforward(x)
-            loss += - self.log_loss2(y, self.activations[-1]) 
 
-
+        self.feedforward(X)
+        loss= log_loss(Y, self.activations[-1]) 
         grad = self.gradient(self.flatten_params(), X, Y)
 
-        loss = loss / X.shape[0]+ self.lambda_ * np.sum([np.sum(w**2) for w in self.weight])
+        loss += self.lambda_ * np.sum([np.sum(w**2) for w in self.weight])
 
         return loss, grad
 
@@ -246,47 +198,17 @@ class ANNClassification(ANN):
         n_features = X.shape[1]
         n_classes = len(np.unique(y))
         self.units = [n_features] + self.units + [n_classes]          
-        self.initialize_weight()
-
-
-        # clf = MLPClassifier(hidden_layer_sizes= tuple(self.units), max_iter=10000, alpha=self.lambda_, activation='logistic', solver='lbfgs')
-        # clf.fit(X, y)
-        # self.weight = clf.coefs_
-        # self.biases = clf.intercepts_
-        # self.clf = clf
-        # print(self.weight)
-        # return self
-        # print("Before optimization")
-        # print(self.weight)
-        # print(self.biases)
+        self.initialize_weight(s=0)
 
         self.encoder = OneHotEncoder(handle_unknown='ignore')
         y = self.encoder.fit_transform(y.reshape(-1, 1)).toarray() #target value encoding
-
         self.optimize(X, y, epochs=epochs)
 
-        # print("After optimization")
-        # print(self.weight)
-        # print(self.biases)
-
-        # print(self.weight)
-        # print(self.biases)
         return self
 
     def predict(self, X):
-        predictions = []
-        # p = self.clf.predict_proba(X)
-
-        for x in X:
-            self.activations = []
-            self.zs = []
-            self.feedforward(x)
-
-            predictions.append(list(self.activations[-1]))
-
-        # print(X)
-        # print(predictions)
-        return np.array(predictions)
+        self.feedforward(X)
+        return self.activations[-1]
 
 
 
@@ -294,7 +216,7 @@ class ANNRegression(ANN):
 
     def feedforward(self, x):
         self.hidden_layer_feedforward(x)
-        zi = np.dot(self.weight[-1], self.activations[-1]) + self.biases[-1].flatten()
+        zi = np.dot( self.activations[-1], self.weight[-1]) + self.biases[-1]
         self.zs.append(zi)
         self.activations.append(zi) # output je samo linearna kombinacija
 
@@ -303,12 +225,10 @@ class ANNRegression(ANN):
         self.biases = []
 
         self.set_params(params)
-        loss = 0
-        for x, y in zip(X, Y): # for each element in the batch
-            self.activations = []
-            self.zs = []
-            self.feedforward(x)
-            loss += mean_squared_error([y], self.activations[-1])
+        self.activations = []
+        self.zs = []
+        self.feedforward(X) 
+        loss = mean_squared_error(Y, self.activations[-1])
         loss = loss / X.shape[0]
 
         grad = self.gradient(self.flatten_params(), X, Y)
@@ -318,55 +238,58 @@ class ANNRegression(ANN):
     def fit(self, X, y):
         n_features = X.shape[1]
         self.units = [n_features] + self.units + [1]          
-        self.initialize_weight()
-
+        self.initialize_weight()    
+        y = y.reshape(-1, 1)
         self.optimize(X, y)
 
         return self
     
     def predict(self, X):
 
-        predictions = []
-        for x in X:
-            self.activations = []
-            self.zs = []
-            self.feedforward(x)
-            predictions.append(self.activations[-1])
+        self.feedforward(X)
+        return self.activations[-1].flatten()
 
-        return np.array(predictions).flatten()
 
 
 def create_final_predictions():
 
-
-    fitter = ANNClassification(units=[10, 10, 10, 10, 10], lambda_=0.0001)
-
     df = pd.read_csv("train.csv")
     df = df.drop(columns=["id"])
-    X = df.iloc[:, :-1].values
-    y = df.iloc[:, -1].values
-    names = np.unique(y)
-    df = pd.read_csv("test.csv")
-    ids = df["id"]
+
+    X_train = df.drop(columns='target')
+    y_train = df['target']
+
+    train_mean = X_train.mean()
+    train_std = X_train.std()
+
+    X_train = (X_train - train_mean) / train_std
+
+    X_train = X_train.to_numpy()
+    y_train = y_train.to_numpy()
+
+    names = np.unique(y_train)
+
+
     t = time.time()
-    fitter.fit(X, y)
-    print("fitting time ", (time.time() - t) /60)
-    
+    fitter = ANNClassification(units=[128], lambda_=0.0001)
+    m = fitter.fit(X_train, y_train, epochs=1)
+    ttime = time.time() - t
+    print("Training time: ", time.time() - t)
+
     df = pd.read_csv("test.csv")
     ids = df["id"]
     df = df.drop(columns=["id"])
-    X = df.values
+    df = (df - train_mean) / train_std #normalizacija
+    df = df.to_numpy()
+    print(df.shape)
     t = time.time()
-    predictions = fitter.predict(X)
+    predictions = m.predict(df)
     print("predicting time ", time.time() - t)
     
     df = pd.DataFrame(predictions, columns=names )
-    # p = np.vstack((names, p))
-    # np.savetxt("final.txt",p , fmt="%s", delimiter=",")
     df.index = ids
     df.to_csv("final.txt", index=True, header=True, sep=",")
     
-
 
 
 if __name__ == '__main__':
@@ -375,37 +298,64 @@ if __name__ == '__main__':
                         [1, 0, 2],
                         [1, 1, 2]])
     y = np.array([0, 1, 1, 0])
-
-    # error_class = []
-    # error_reg = []
-    # for i in range(100):
-
-    #     encoder = OneHotEncoder(handle_unknown='ignore')
-    #     y_ohe = encoder.fit_transform(y.reshape(-1, 1)).toarray() #target value encoding
-    #     fitter2 = ANNClassification(units=[3, 10, 10, 10, 2], lambda_=0.0001)
-    #     fitter2.initialize_weight()
-
-    #     gradient = fitter2.gradient(fitter2.flatten_params(), x, y_ohe)
-    #     numerical_gradient = fitter2.compute_numerical_gradient(x, y_ohe)
-
-    #     diff = np.linalg.norm(gradient - numerical_gradient)
-    #     error_class.append(diff)
-    #     # print(gradient)
-    #     # print(numerical_gradient)
-    #     print("Gradient difference for Classification: ", np.linalg.norm(gradient - numerical_gradient))
-
-    #     fitter2 = ANNRegression(units=[3, 10, 10, 10, 1], lambda_=0.0001)
-    #     fitter2.initialize_weight()
-    #     gradient = fitter2.gradient(fitter2.flatten_params(), x, y)
-    #     numerical_gradient = fitter2.compute_numerical_gradient(x, y)
-
-    #     diff = np.linalg.norm(gradient - numerical_gradient)
-    #     error_reg.append(diff)
-    #     print("Gradient difference for Regression: ", np.linalg.norm(gradient - numerical_gradient))
+    
 
 
-    # print("average error for Classification: ", np.mean(error_class))
-    # print("average error for Regression: ", np.mean(error_reg))
+    # fitter = ANNRegression(units=[5, 3], lambda_=0.0001)
+    # m = fitter.fit(x, y)
+    # print(m.predict(x))
+    # print(m.weights())
+
+    # print("Creating final predictions")
+    # # create_final_predictions()    
+
+    # ## test models with diffrent parameters
+    # df = pd.read_csv("train.csv")
+    # df = df.drop(columns=["id"])
+
+
+    # # params = [ [128], [128, 128], [64], [64, 64], [128, 2, 2, 2, 2, 2, 2]]
+    # param_names = ["128", "128-128", "64", "64-64", "128-2-2-2-2-2-2"]
+    # params = [ [128]]
+
+    # for i, param in enumerate(params):
+
+
+    #     X_train, X_test, y_train, y_test = train_test_split(df.drop(columns='target'), df['target'], train_size=0.8)
+
+    #     train_mean = X_train.mean()
+    #     train_std = X_train.std()
+
+    #     X_train = (X_train - train_mean) / train_std
+    #     X_test = (X_test - train_mean) / train_std
+    #     X_train = X_train.to_numpy()
+    #     X_test = X_test.to_numpy()
+
+    #     y_train = y_train.to_numpy()
+    #     y_test = y_test.to_numpy()
+    #     names = np.unique(y_train)
+
+    #     t = time.time()
+    #     fitter = ANNClassification(units=param, lambda_=0.0001)
+    #     m = fitter.fit(X_train, y_train, epochs=1)
+    #     ttime = time.time() - t
+    #     print("Training time: ", time.time() - t)
+
+    #     t = time.time()
+    #     predictions = m.predict(X_test)
+    #     print("predicting time ", time.time() - t)
+
+    #     y_test_onehot = m.encoder.transform(y_test.reshape(-1, 1)).toarray()
+
+    #     # print(predictions)
+    #     logloss = log_loss(y_test_onehot, predictions)
+    #     print("Logloss: ", logloss)
+
+    #     name = "final/" + param_names[i] + ".txt"
+    #     np.savetxt(name, [logloss, ttime], delimiter=",")
+    #     np.savetxt("final/predictions" + param_names[i] + ".txt", predictions, delimiter=",")
+    #     np.savetxt("final/y_test" + param_names[i] +".txt", y_test_onehot, delimiter=",")
+
 
 
 

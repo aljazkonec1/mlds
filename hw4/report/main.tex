@@ -86,7 +86,7 @@ We then compute the numerical gradient for weight $w_{ij}^{l}$ between neurons $
     \frac{\partial C}{\partial w_{ij}^{l}} = \frac{C(x, w_{ij}^{l} + \epsilon) - C(x, w_{ij}^{l} - \epsilon)}{2\epsilon}
 \end{equation}    
 where $C$ is the cost function, $x$ is the input to the network and $\epsilon = 1e-6$. 
-We then compare the analytical gradient to the numerical gradient for all weights in the network by computing norm of the differences:
+Then we calculate the norm of differences between analytical and numerical gradients as:
 \begin{equation}
     \text{diff} = || \nabla_{\text{analytical}} - \nabla_{\text{numerical}} ||
 \end{equation}
@@ -101,20 +101,32 @@ We can see that for classification the norm is smaller and has lower variance th
 
 
 \section{Predictions on the Housing Dataset}
-In this section we compare our implementation of ANN to multiple other models where we use the provided housing datasets.
-All of the data is already in numerical form, so the only preprocessing that we did was to split the data and then normalize it.
-We perform an 80-20 split of the data and normalize it using the mean and standard deviation of the training data.
+In this section we compare our implementation of ANN to multiple other models where we train the models on the provided housing datasets.
+All of the data is already in numerical form, so the only preprocessing that we did was to perform 80-20 split and normalize the data.
 
 \subsection{Classification Task}
 For our ANNClassifier we use hidden layers of size [20, 20] and regularization parameter $\lambda = 0.0001$.
 We compare our implementation of ANNClassifier to multiple other logistic regression models:
 \begin{itemize}
-    \item \textbf{MLPClassifier} - Multi-layer Perceptron classifier from scikit-learn with same hidden layers but $relu$ activation function.
+    \item \textbf{MLPClassifier} - Multi-layer Perceptron classifier from scikit-learn with same hidden layer structure but $relu$ activation function.
     \item \textbf{MultinomialLogReg\_HW3} - Multinomial Logistic Regression from HW3.
     \item \textbf{LogisticRegression} - Logistic Regression from scikit-learn.
 \end{itemize}
 
-Figure \ref{fig:roc} shows the ROC curves for all models.
+\begin{table*}[!ht]
+    \centering
+    \begin{tabular}{lllll}
+        \textbf{Model} & \textbf{Precision} & \textbf{Recall} & \textbf{f1} & \textbf{Log-Loss} \\ \hline
+        \textbf{ANN} & 0.86 $\pm$ 0.03 & 0.86 $\pm$  0.03 & 0.86 $\pm$ 0.03 & 0.34 $\pm$ 0.05 \\ 
+        \textbf{MLPClassifier} & 0.86 $\pm$ 0.03 & 0.86 $\pm$ 0.03 & 0.86 $\pm$ 0.03 & 0.37 $\pm$ 0.1 \\ 
+        \textbf{MultinomialLogReg\_HW3} & 0.62 $\pm$ 0.23 & 0.6  $\pm$ 0.07 & 0.48 $\pm$ 0.1 & 0.66 $\pm$ 0.01 \\ 
+        \textbf{LogisticRegression} & 0.74 $\pm$ 0.04& 0.74 $\pm$ 0.04& 0.73 $\pm$ 0.04& 0.52 $\pm$ 0.3 \\ 
+    \end{tabular}
+    \caption{Classification metrics for all tested models.}
+    \label{classification_scores}
+\end{table*}
+
+Figure \ref{fig:roc} shows the ROC curves for all tested models.
 The best performing models are ANNClassifier and MLPClassifier, with ANNClassifier having a slightly lower AUC score.
 Both logistic regression models perform worse at around 0.8 AUC score.
 \begin{figure}[H]
@@ -123,21 +135,11 @@ Both logistic regression models perform worse at around 0.8 AUC score.
     \caption{ROC curves for all models.}
     \label{fig:roc}
 \end{figure}
+
 Table \ref{classification_scores} shows the classification metrics for all models.
 The best socring models are again ANN and MLPClassifier, with ANN having a slightly lower precision and recall.
 This simple example shows how even a small ANN, with 2 hidden layers, can learn deep representation of the data and outperform basic Logistic Regression models.
-\begin{table}[!ht]
-    \centering
-    \begin{tabular}{lllll}
-        \textbf{Model} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} & \textbf{Log-Loss} \\ \hline
-        \textbf{ANN} & 0.84 & 0.84 & 0.84 & 0.37 \\ 
-        \textbf{MLPClassifier} & 0.88 & 0.88 & 0.88 & 0.37 \\ 
-        \textbf{Multinomial-}\\ \textbf{LogReg\_HW3} & 0.76 & 0.6 & 0.47 & 0.66 \\ 
-        \textbf{LogisticRegression} & 0.72 & 0.72 & 0.71 & 0.53 \\ 
-    \end{tabular}
-    \caption{Classification metrics for all tested models.}
-    \label{classification_scores}
-\end{table}
+
 
 \subsection{Regression Task}
 Similarly to Classification task we build a ANNRegressor model with the hidden layers [20, 20] and compare it to multiple other models:
@@ -146,13 +148,36 @@ Similarly to Classification task we build a ANNRegressor model with the hidden l
     \item \textbf{LinearRegression} - Linear Regression from scikit-learn.
 \end {itemize}
 
+Table \ref{regression_scores} shows Root Mean Squared Error (RMSE) for all tested models.
+To accurately test performance we performed 500 iterations of 80-20 split and calculated the mean and standard deviation of RMSE.
+Here we can see that all models perform similarly.
+Trying different number of hidden layers and neurons did not improve the performance of the ANNRegressor.
+This is due to the very small regression dataset, where ANNs do not have enough data to learn deep representations of the features.
+\begin{table}[!h]
+    \centering
+    \begin{tabular}{ll}
+        \textbf{Model} & \textbf{Mean} \\ \hline
+        \textbf{ANNRegression} & 6.04 $\pm$ 1.16 \\ 
+        \textbf{MLPRegressor} & 6.10 $\pm$ 1.30 \\ 
+        \textbf{LinearRegression} & 5.86 $\pm$ 1.127  \\ 
+    \end{tabular}
+    \caption{RMSE for all tested models.}
+    \label{regression_scores}
+\end{table}
 
 
 
+\section{Implementation of final predictions}
+The final part of this Homework requires us to build and evaluate an ANN model on the provided train dataset.
+The dataset consists of 93 features and 1 calssification targert variable with 9 classes.
+Similarly as before we perform 80-20 split and normalize the data.
+The best performing model is ANNClassifier with hidden layers [128] and regularization parameter $\lambda = 0.0001$.
+We train the model on the training dataset and evaluate it on the test dataset.
+Since the training data set contains 40 000 samples, we perform iterative optimization on smaller batches with 64 samples at once.
+Using this, the training time is around 25 minutes.
+This model achieves an average per sample cross-entropy loss of 0.5882.
 
-\section{Conclusion}
 
-A sentence or two to conclude the report. Write when the method works well and what its limitations.
 
 \bibliographystyle{IEEEtran}
 \bibliography{bibliography}
