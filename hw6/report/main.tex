@@ -1,0 +1,119 @@
+\documentclass[9pt]{IEEEtran}
+
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{caption}
+\captionsetup{justification=justified}
+
+\usepackage{placeins}
+\usepackage{epstopdf}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{url}
+\usepackage{array}
+\usepackage{textcomp}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{float}
+\usepackage{gensymb}
+\usepackage{longtable}
+\usepackage{supertabular}
+\usepackage{multicol}
+\usepackage[justification=centering]{caption}
+\usepackage{amsmath}
+\usepackage{subcaption}
+
+\usepackage[utf8x]{inputenc}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\input{glyphtounicode}
+\pdfgentounicode=1
+
+\graphicspath{{./figures/}}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg,.eps}
+
+% correct bad hyphenation here
+\hyphenation{op-tical net-works semi-conduc-tor trig-gs}
+
+% ============================================================================================
+
+\title{\vspace{0ex} Bayesian Logistic Regression}
+
+\author{Aljaž Konec\vspace{-4.0ex}}
+
+% ============================================================================================
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+In this report we showcase the implementation of Bayesian logistic regression. 
+First we compare the posterior distributions of the coefficients for all shots and subsampled shots.
+Then we discuss the importance of the features and how they are linked to the probability of making a shot.
+
+\section{Personal Opinion}
+In our personal opinion, distance from the basket plays a more important role in the probability of making a shot than the angle of the shot.
+The further away from the basket the player is, the less likely the shot is made.
+Therefore we expect the coefficient $\beta_1$ to have mostly negative values.
+Since players train on shooting there will be certain distances where the player is most comfortable shooting and therefore the coefficient $\beta_1$ will have a positive value.
+All of this is summarized in Figure \ref{fig:personal_opinion}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{personal_opinion.pdf}
+    \caption{Personal opinion on the coefficient for Distance.}
+    \label{fig:personal_opinion}
+\end{figure}
+
+\section{Resulting Posterior Distributions }
+We perform MCMC sampling on all shots and 50 randomly subsampled shots to obtain two posterior distributions for both coefficients.
+The results are shown in Figure \ref{fig:beta0}.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.4\textwidth]{combined_plot_vertical.pdf}
+    \caption{Posterior distributions for angle and distance coefficients for all shots and subsampled shots.}
+    \label{fig:beta0}
+
+\end{figure}
+Comparing the posterior distributions to our personal opinion we can see that the distance coefficient is infact negative just not to the extent we expected.
+Infering from subsampled data results in similar distributions where the distance coefficient is negative and the angle coefficient is close to zero.
+
+Comparing the distributions for all shots and subsampled shots it can be observed that the former gives a much smaller area of probable coefficient values.
+This indicates that the the model is more certain about the coefficients when using more data.
+Table \ref{tab:beta0} shows the mean and standard deviation of the posterior distributions for both coefficients.
+The standard deviation for subsampled distribution is much larger, which again shows the larger uncertainty in the model when using less data.
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{lll}
+        \textbf{} & \textbf{All Data} & \textbf{Subsampled Data} \\ \hline
+        \textbf{Angle Coefficient} & -0.0015 $\pm$ 0.0021 & -0.0068 $\pm$ 0.0126\\ 
+        \textbf{Distance Coefficient} & -0.1527 $\pm$ 0.0201 & -0.3758 $\pm$ 0.1307\\ 
+    \end{tabular}
+    \caption{Means and standard deviations of both posterior distributions for the angle and distance coefficients.}
+    \label{tab:beta0}
+\end{table}
+
+\section{Importance of Features}
+From the posterior distribution in Figure \ref{fig:beta0} we can see that the angle coefficient values are distributed very closely around zero while the distance coefficient is distributed at -0.1527 $\pm$ 0.0201.
+Since the distance coefficient is (in absolute terms) much larger than the angle coefficient, we can conclude that the distance from the basket is far more important than the angle of the shot.
+
+
+\section{Shot success based on increasing angle}
+We can calculate this by calculating the probability that the angle coefficient is negative, indicating the that shot success decreases with increasing angle.
+The probability can be calculated as the proportion of posterior samples that are negative:
+\begin{equation}
+    P(\beta_0 < 0) = \frac{1}{N} \sum_{i=1}^{N} \mathbf{1}_{(x < 0)}(\beta_0^{(i)}) = 0.7627
+\end{equation}
+We conclude that the coefficient of the angle is negative 76.27\% of the time, indicating that the shot success decreases with increasing angle.
+
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{bibliography}
+
+\end{document}
