@@ -8,7 +8,7 @@ hw4/final.txt
 __pycache__/
 *.py[cod]
 *$py.class
-
+izpit/
 # C extensions
 *.so
 

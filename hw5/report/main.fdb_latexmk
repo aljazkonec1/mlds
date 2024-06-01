@@ -1,14 +1,14 @@
 # Fdb version 3
-["bibtex main"] 1714719740 "main.aux" "main.bbl" "main" 1714719740
+["bibtex main"] 1716758264 "main.aux" "main.bbl" "main" 1716758264
   "/usr/share/texlive/texmf-dist/bibtex/bst/ieeetran/IEEEtran.bst" 1440712899 57748 7c8250ecf02814ce6ddc0cdbb63df1dd ""
   "bibliography.bib" 0 -1 0 ""
-  "main.aux" 1714719482 2314 c9f298c4d843c11c9f958aeac546cf97 "pdflatex"
+  "main.aux" 1716758264 2314 c9f298c4d843c11c9f958aeac546cf97 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
-["pdflatex"] 1714719481 "/home/aljaz/FAKS/mlds/hw5/report/main.tex" "main.pdf" "main" 1714719740
+["pdflatex"] 1716758264 "/home/aljaz/FAKS/mlds/hw5/report/main.tex" "main.pdf" "main" 1716758264
   "/etc/texmf/web2c/texmf.cnf" 1701018509 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/aljaz/FAKS/mlds/hw5/report/main.tex" 1714719740 7865 f0b4f51d881a0b092372f2c368b69bc2 ""
+  "/home/aljaz/FAKS/mlds/hw5/report/main.tex" 1716758264 7887 e8143effde52dd55b5352f691304264e ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/times/ptmb7t.tfm" 1136768653 2172 fd0c924230362ff848a33632ed45dc23 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/times/ptmbi7t.tfm" 1136768653 2228 e564491c42a4540b5ebb710a75ff306c ""
@@ -168,12 +168,12 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1644012257 39432 7155514e09a3d69036fac785183a21c2 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1701018523 4379155 98693266ff65f58d9f98aff394de12d2 ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1710831312 2798689 45dea7c6e89ba7e05d6f11efe5b4a017 ""
-  "figures//housing_results.pdf" 1714717172 19277 de81829ba24df1fc4d490a00dd44a1fa ""
-  "figures//sine.pdf" 1714715397 27643 c7b98923659b4675709da8d051fede4d ""
-  "main.aux" 1714719482 2314 c9f298c4d843c11c9f958aeac546cf97 "pdflatex"
+  "figures//housing_results.pdf" 1714720425 19277 de81829ba24df1fc4d490a00dd44a1fa ""
+  "figures//sine.pdf" 1714720425 27643 c7b98923659b4675709da8d051fede4d ""
+  "main.aux" 1716758264 2314 c9f298c4d843c11c9f958aeac546cf97 "pdflatex"
   "main.bbl" 0 -1 0 "bibtex main"
-  "main.out" 1714719482 1112 ed3d1a23f8c3d4e2058f53d3bb7ba959 "pdflatex"
-  "main.tex" 1714719740 7865 f0b4f51d881a0b092372f2c368b69bc2 ""
+  "main.out" 1716758264 1112 ed3d1a23f8c3d4e2058f53d3bb7ba959 "pdflatex"
+  "main.tex" 1716758264 7887 e8143effde52dd55b5352f691304264e ""
   (generated)
   "main.aux"
   "main.log"

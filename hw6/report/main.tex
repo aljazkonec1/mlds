@@ -44,7 +44,7 @@
 
 \title{\vspace{0ex} Bayesian Logistic Regression}
 
-\author{Aljaž Konec\vspace{-4.0ex}}
+\author{Aljaž Konec\vspace{-5.0ex}}
 
 % ============================================================================================
 
@@ -57,7 +57,9 @@ In this report we showcase the implementation of Bayesian logistic regression.
 First we compare the posterior distributions of the coefficients for all shots and subsampled shots.
 Then we discuss the importance of the features and how they are linked to the probability of making a shot.
 
+\vspace*{-0.5cm}
 \section{Personal Opinion}
+\vspace*{-1ex}
 In our personal opinion, distance from the basket plays a more important role in the probability of making a shot than the angle of the shot.
 The further away from the basket the player is, the less likely the shot is made.
 Therefore we expect the coefficient $\beta_1$ to have mostly negative values.
@@ -91,16 +93,21 @@ The standard deviation for subsampled distribution is much larger, which again s
     \centering
     \begin{tabular}{lll}
         \textbf{} & \textbf{All Data} & \textbf{Subsampled Data} \\ \hline
-        \textbf{Angle Coefficient} & -0.0015 $\pm$ 0.0021 & -0.0068 $\pm$ 0.0126\\ 
-        \textbf{Distance Coefficient} & -0.1527 $\pm$ 0.0201 & -0.3758 $\pm$ 0.1307\\ 
+        \textbf{Angle Coefficient} & -0.0400 $\pm$ 0.055 & -0.1850 $\pm$ 0.3423\\ 
+        \textbf{Distance Coefficient} & -0.4309 $\pm$ 0.057 & -1.0605 $\pm$ 0.3689\\ 
     \end{tabular}
     \caption{Means and standard deviations of both posterior distributions for the angle and distance coefficients.}
     \label{tab:beta0}
 \end{table}
 
+\vspace*{-0.6cm}
 \section{Importance of Features}
-From the posterior distribution in Figure \ref{fig:beta0} we can see that the angle coefficient values are distributed very closely around zero while the distance coefficient is distributed at -0.1527 $\pm$ 0.0201.
-Since the distance coefficient is (in absolute terms) much larger than the angle coefficient, we can conclude that the distance from the basket is far more important than the angle of the shot.
+The more important feature can be inferred from the percentage of the posterior samples where the absolute value of one coefficient is larger than the other.
+This can be calculated as:
+\begin{equation}
+    P(|\beta_0| > |\beta_1|) = \frac{1}{N} \sum_{i=1}^{N} \mathbf{1}_{(|\beta_0| > |\beta_1|)}(\beta_0^{(i)}, \beta_1^{(i)}) = 1
+\end{equation}
+This indicates that the distance coefficient is more important than the angle coefficient in determining the probability of making a shot.                  
 
 
 \section{Shot success based on increasing angle}

@@ -5,7 +5,11 @@ library(cowplot)
 #load data
 
 shots_data <- read.csv("dataset.csv")
+#normalize data
+shots_data$Angle <- (shots_data$Angle - mean(shots_data$Angle)) / sd(shots_data$Angle)
+shots_data$Distance <- (shots_data$Distance - mean(shots_data$Distance)) / sd(shots_data$Distance)
 summary(shots_data)
+
 
 
 
@@ -21,6 +25,8 @@ subset_shots_data <- shots_data[sample(nrow(shots_data), 50), ]
 
 subset_model <- rstanarm::stan_glm(Made ~ Angle + Distance, data = subset_shots_data, family = binomial(link = "logit"), 
                                    chains = 5, iter = 2500, warmup = 500)
+
+
 subset_samples <- as.data.frame(subset_model)
 summary(subset_samples)
 sd(subset_samples$Angle)
@@ -42,11 +48,10 @@ angle_distance <- ggplot(samples, aes(x = Angle, y = Distance)) +
         plot.title = element_text(size = 20, face = "bold", hjust = 0.5),
         axis.title.x = element_text(size = 16), 
         axis.title.y = element_text(size = 16), 
-        axis.text = element_text(size = 14)) +
+        axis.text = element_text(size = 14))+
       ylim(y_limits) + xlim(x_limits)
-
-
-# ggsave("report/figures/angle_distance_plot.pdf", plot= angle_distance, width= 9, height = 16, units = "in")
+angle_distance
+ggsave("report/figures/angle_distance_plot.pdf", plot= angle_distance, width= 9, height = 16, units = "in")
 
 
 
@@ -65,19 +70,27 @@ subset_angle_plot <- ggplot(subset_samples, aes(x = Angle, y = Distance)) +
         axis.title.y = element_text(size = 16), 
         axis.text = element_text(size = 14))+
           ylim(y_limits)+ xlim(x_limits)
+subset_angle_plot
 
-
-# ggsave("report/figures/subsample_angle_distance_plot.pdf", plot= subset_angle_plot, width= 9, height = 16, units = "in")
+ggsave("report/figures/subsample_angle_distance_plot.pdf", plot= subset_angle_plot, width= 9, height = 16, units = "in")
 
 
 combined_plot <- plot_grid(angle_distance, subset_angle_plot, ncol = 1, nrow = 2)
-# ggsave("report/figures/combined_plot_vertical.pdf", plot = combined_plot, width = 9, height = 16)
+combined_plot
+ggsave("report/figures/combined_plot_vertical.pdf", plot = combined_plot, width = 9, height = 16)
 
 combined_plot <- plot_grid(angle_distance, subset_angle_plot)
 # ggsave("report/figures/combined_plot_horizontal.pdf", plot = combined_plot, width = 16, height = 9)
 
 
+# importance of features
+samples$Angle
+samples$Distance
+abs(samples$Distance) > abs(samples$Angle)
+mean (abs(samples$Distance) > abs(samples$Angle))
 
 
+
+# Shot success based on increasing angle 
 prob_angle_negative <- mean(samples$Angle < 0)
 prob_angle_negative
